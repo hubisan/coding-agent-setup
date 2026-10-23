@@ -21,7 +21,7 @@ es und erfinden es nicht neu.
 | `.claude/skills/`, `.agents/skills/`, `skills-lock.json` | Matt-Pocock-Skills (identische Kopien, keine Symlinks) | sync |
 | `.claude/agents/implementer*.md` | Implementer-Subagents (Standard und eskaliert) | sync |
 | `docs/agents/WORKFLOW.md` | Rollen, Parallelisierung, Korrekturbudget, Commits, Skills | sync |
-| `docs/agents/triage-labels.md` | Triage-Labels inkl. `geparkt` | sync |
+| `docs/agents/triage-labels.md` | Triage-Labels inkl. `backlog` und `someday` | sync |
 | `docs/agents/issue-tracker.md`, `domain.md` | Konfiguration dieses Repos (von `/setup-matt-pocock-skills`) | – |
 | `CLAUDE.md` | nur `@AGENTS.md` (Absicherung, siehe oben) | sync |
 | `AGENTS.md`, `Makefile`, `.github/workflows/ci.yml` | Gerüst mit `PROJECT`-Platzhaltern | seed |

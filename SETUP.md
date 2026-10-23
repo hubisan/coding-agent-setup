@@ -10,7 +10,7 @@ Richte das Agenten-Setup in diesem Repo ein. Arbeite auf dem Branch `chore/agent
 1. Führe `/setup-matt-pocock-skills` aus. Der Skill will in `CLAUDE.md` schreiben,
    sobald es existiert: Schreibe den Block stattdessen in `AGENTS.md`. Es erzeugt `docs/agents/issue-tracker.md`
    und `docs/agents/domain.md` und füllt den Block `## Agent skills` in `AGENTS.md`.
-   `docs/agents/triage-labels.md` bleibt wie es ist (inkl. Label `geparkt`).
+   `docs/agents/triage-labels.md` bleibt wie es ist (inkl. Labels `backlog` und `someday`).
    `CLAUDE.md` bleibt ein reiner `@AGENTS.md`-Import.
 2. Fülle alle `PROJECT`-Platzhalter in `AGENTS.md` (Zweck des Repos, Spec-Ablage, Projekt-Doku, Guardrails, fokussierter
    Testbefehl, Overrides für Skills). Frage mich, was du nicht aus dem Repo ableiten kannst. Halte
