@@ -28,27 +28,38 @@ es und erfinden es nicht neu.
 | `.gitattributes`, `.editorconfig` | LF/UTF-8 | seed |
 
 `sync` = wird beim Sync überschrieben. `seed` = wird nur kopiert, wenn die Datei fehlt;
-danach gehört sie dem Projekt. Die Liste steht in `sync-manifest.txt`.
+danach gehört sie dem Projekt. `import` (`CLAUDE.md`) = wird nur geschrieben, wenn sie
+fehlt oder schon `@AGENTS.md` ist; hat sie eigenen Inhalt, bricht der Sync ab, ohne
+etwas zu schreiben. Die Liste steht in `sync-manifest.txt`.
 
 Nicht enthalten, weil projektspezifisch: `docs/agents/CURRENT.md`, `domain.md`,
 `issue-tracker.md` (erzeugt `/setup-matt-pocock-skills`) und Projekt-Doku.
 
-## Neues Repo
+## Setup in ein Repo übernehmen
 
-1. Auf GitHub **Use this template** → neues Repo erstellen.
-2. In der ersten Agenten-Session den Prompt aus `SETUP.md` verwenden.
+Das Skript kopiert nur. Das Zusammenführen mit bestehenden Regeln macht die KI mit dem
+Skill `adopt-agent-setup` (`.claude/skills/adopt-agent-setup/SKILL.md`): Bestand
+aufnehmen, `CLAUDE.md` nach `AGENTS.md` verschieben, syncen, Platzhalter und CI
+füllen, `/setup-matt-pocock-skills`, Labels, PR auf `chore/agent-setup`.
 
-## Bestehendes Repo
+**Neues Repo:** Auf GitHub **Use this template**, dann in der ersten Session
+`/adopt-agent-setup`.
+
+**Bestehendes Repo** (Skill ist dort noch nicht vorhanden), Prompt:
+
+> Übernimm das Agent-Setup aus `hubisan/coding-agent-setup` in dieses Repo. Klone das
+> Template in ein temporäres Verzeichnis und folge dort
+> `.claude/skills/adopt-agent-setup/SKILL.md`.
+
+Derselbe Prompt (oder `/adopt-agent-setup`, sobald der Skill im Repo ist) aktualisiert
+ein Repo später auf den neuen Stand.
+
+Nur kopieren, ohne KI (Linux/WSL; löscht nichts, meldet `extra`):
 
 ```bash
-scripts/sync-coding-agent-setup.sh --dry-run ../mein-repo   # zeigt, was sich ändert
+scripts/sync-coding-agent-setup.sh --dry-run ../mein-repo
 scripts/sync-coding-agent-setup.sh ../mein-repo
-cd ../mein-repo && git switch -c chore/agent-setup && git diff
 ```
-
-Das Skript läuft unter Linux/WSL. Es löscht nichts: Dateien, die nur im Ziel liegen
-(z. B. entfernte Skills), meldet es als `extra`. Fehlen `AGENTS.md` oder `Makefile`,
-danach die Schritte aus `SETUP.md` ausführen.
 
 ## Verbesserungen
 
