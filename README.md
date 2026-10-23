@@ -72,4 +72,10 @@ scripts/sync-coding-agent-setup.sh ../mein-repo
 
 Für UI-Repos mit Datenbank hat sich bewährt: ein Modus mit In-Memory-Daten (ohne DB)
 plus ein Screenshot-Skript, damit Agenten UI-Änderungen selbst ansehen können
-(Beispiel: `controlling-db-web`, `scripts/run-fake.sh`, `scripts/screenshot.mjs`).
+(z. B. `scripts/run-fake.sh` startet die App mit Fake-Daten, `scripts/screenshot.mjs`
+macht Screenshots in hellem und dunklem Modus).
+
+## Lizenz
+
+MIT, siehe `LICENSE`. Die Skills von `mattpocock/skills` stehen ebenfalls unter MIT
+(`THIRD-PARTY-LICENSES.md`); die Datei wird mit den Skills synchronisiert.
