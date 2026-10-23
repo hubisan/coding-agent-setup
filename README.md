@@ -1,8 +1,15 @@
 # coding-agent-setup
 
 Vorlage für das Agenten-Setup unserer Repos: Skills, Rollen, Workflow und Sync-Skript
-an einem Ort. Funktioniert mit **Claude Code** (liest `CLAUDE.md` → `@AGENTS.md`)
-und **Codex** (liest `AGENTS.md`).
+an einem Ort. Funktioniert mit **Claude Code** und **Codex**.
+
+- `AGENTS.md` ist die einzige Anweisungsdatei. Codex liest sie direkt, Claude Code ab
+  v2.1.277 auch.
+- `CLAUDE.md` enthält nur `@AGENTS.md`. Es sichert ältere Claude-Versionen ab und
+  Sessions mit `CLAUDE.local.md` (das schaltet das direkte Lesen von `AGENTS.md` ab).
+  Doppelt geladen wird nichts.
+- Claude Code liest nichts unter `.agents/`. Skills und Subagents brauchen deshalb
+  `.claude/`; `.agents/skills/` ist die Kopie für Codex.
 
 Dieses Repo ist die einzige Quelle für das generische Setup. Andere Repos kopieren
 es und erfinden es nicht neu.
@@ -11,11 +18,12 @@ es und erfinden es nicht neu.
 
 | Pfad | Zweck | Sync |
 | --- | --- | --- |
-| `.claude/skills/`, `.agents/skills/`, `skills-lock.json` | Matt-Pocock-Skills (identische Kopien, alle model-invocable) | sync |
+| `.claude/skills/`, `.agents/skills/`, `skills-lock.json` | Matt-Pocock-Skills (identische Kopien, keine Symlinks) | sync |
 | `.claude/agents/implementer*.md` | Implementer-Subagents (Standard und eskaliert) | sync |
 | `docs/agents/WORKFLOW.md` | Rollen, Parallelisierung, Korrekturbudget, Commits, Skills | sync |
 | `docs/agents/triage-labels.md` | Triage-Labels inkl. `geparkt` | sync |
-| `CLAUDE.md` | nur `@AGENTS.md` | sync |
+| `docs/agents/issue-tracker.md`, `domain.md` | Konfiguration dieses Repos (von `/setup-matt-pocock-skills`) | – |
+| `CLAUDE.md` | nur `@AGENTS.md` (Absicherung, siehe oben) | sync |
 | `AGENTS.md`, `Makefile`, `.github/workflows/ci.yml` | Gerüst mit `PROJECT`-Platzhaltern | seed |
 | `.gitattributes`, `.editorconfig` | LF/UTF-8 | seed |
 

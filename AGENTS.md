@@ -39,14 +39,15 @@
 
 ### Issue tracker
 
-<!-- PROJECT: e.g. GitHub issues in `<owner>/<repo>`. See `docs/agents/issue-tracker.md`. -->
+Issues and specs are GitHub issues in this repo. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
-Use the default mattpocock/skills vocabulary. See `docs/agents/triage-labels.md`.
+Default mattpocock/skills vocabulary plus `geparkt`. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-<!-- PROJECT: single- or multi-context; see `docs/agents/domain.md`. -->
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the root, created lazily. See
+`docs/agents/domain.md`.
 
 This block belongs in `AGENTS.md`; `CLAUDE.md` only imports it.

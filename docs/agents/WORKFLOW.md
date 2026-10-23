@@ -44,8 +44,9 @@ Model names carry no version: the current model of that family is meant.
 
 ## Skills
 
-All repository skills (`.claude/skills/`, mirrored in `.agents/skills/`) are
-model-invocable; none carries `disable-model-invocation`. Invoke a matching skill
+Repository skills live in `.claude/skills/` (Claude Code reads only this) and as an
+identical copy in `.agents/skills/` (Codex). Copies, not symlinks. Skills marked
+`disable-model-invocation` run only when the user invokes them. Invoke a matching skill
 through the Skill tool (other harnesses: open its `SKILL.md` and follow it).
 
 Mandatory use:
