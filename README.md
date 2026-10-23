@@ -12,7 +12,6 @@ es und erfinden es nicht neu.
 | Pfad | Zweck | Sync |
 | --- | --- | --- |
 | `.claude/skills/`, `.agents/skills/`, `skills-lock.json` | Matt-Pocock-Skills (identische Kopien, alle model-invocable) | sync |
-| `scripts/skills-update.sh`, `make skills-update` | Skills aktualisieren, Kopie und Flag-Entfernung sicherstellen | sync |
 | `.claude/agents/implementer*.md` | Implementer-Subagents (Standard und eskaliert) | sync |
 | `docs/agents/WORKFLOW.md` | Rollen, Parallelisierung, Korrekturbudget, Commits, Skills | sync |
 | `docs/agents/triage-labels.md` | Triage-Labels inkl. `geparkt` | sync |
@@ -49,9 +48,6 @@ danach die Schritte aus `SETUP.md` ausführen.
 2. Danach in die Repos syncen.
 
 Änderungen an `sync`-Dateien direkt im Ziel-Repo gehen beim nächsten Sync verloren.
-
-Skills aktualisieren: `make skills-update` (oder `make skills-update SKILLS="tdd"`),
-Diff prüfen, auf `chore/skills-update` committen.
 
 ## Optionales Muster: Fake-Daten-Modus
 

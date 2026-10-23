@@ -8,7 +8,6 @@
 sync .claude/skills
 sync .agents/skills
 sync skills-lock.json
-sync scripts/skills-update.sh
 sync .claude/agents/implementer.md
 sync .claude/agents/implementer-escalated.md
 sync docs/agents/WORKFLOW.md

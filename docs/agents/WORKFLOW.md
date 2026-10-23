@@ -65,10 +65,8 @@ Skip on purpose (token cost without benefit):
   generated files, formatting); the planner's own diff review is enough there.
 - Any skill for Git/GitHub housekeeping (commit, PR, merge, labels).
 
-Update skills only with `make skills-update` (WSL/Linux; single skills:
-`make skills-update SKILLS="tdd code-review"`); it restores the copied `.claude/skills` mirror and
-strips the upstream `disable-model-invocation` flag. Commit the result on
-`chore/skills-update` after reviewing the diff.
+Update skills only on a `chore/skills-update` branch and review the diff before
+committing.
 
 - Repository overrides for `implement`: "full test suite" means the final CI below;
   commit per the Commits section. Project-specific overrides: `AGENTS.md`.
@@ -120,7 +118,7 @@ Do not rerun commands merely because output was long. Narrow the next inspection
 the relevant file, symbol, error, or line range.
 
 Repository skill installations use copied files rather than symlinks so Windows, WSL,
-and archived handoffs see the same bytes reliably (`make skills-update` keeps it so).
+and archived handoffs see the same bytes reliably.
 
 ## Commits
 
