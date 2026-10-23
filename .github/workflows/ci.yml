@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    # Skipped in the template repo itself; the ci target is a placeholder there.
+    if: github.repository != 'hubisan/coding-agent-setup'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      # PROJECT: add toolchain setup steps here (e.g. astral-sh/setup-uv@v6,
+      # actions/setup-node@v4, system packages).
+      - name: CI
+        run: make ci
