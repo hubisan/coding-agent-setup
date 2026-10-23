@@ -12,6 +12,7 @@ sync .claude/agents/implementer.md
 sync .claude/agents/implementer-escalated.md
 sync docs/agents/WORKFLOW.md
 sync docs/agents/triage-labels.md
+sync scripts/labels-setup.sh
 sync CLAUDE.md
 
 seed AGENTS.md

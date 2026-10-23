@@ -17,8 +17,8 @@ Richte das Agenten-Setup in diesem Repo ein. Arbeite auf dem Branch `chore/agent
    `AGENTS.md` kurz und nur mit Verweisen; nutze dafür den Skill `writing-for-agents`.
 3. Ersetze das Ziel `ci` im `Makefile` durch den echten Check (Format, Lint, Tests)
    und ergänze die Toolchain-Schritte in `.github/workflows/ci.yml`.
-4. Lege die Triage-Labels aus `docs/agents/triage-labels.md` im Issue-Tracker an,
-   falls sie fehlen.
+4. Lege die Triage-Labels mit Farben an: `scripts/labels-setup.sh` (braucht `gh`;
+   liest `docs/agents/triage-labels.md`).
 5. Führe `make ci` aus, committe (Conventional Commits) und öffne einen PR.
 
 ---
