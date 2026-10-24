@@ -42,9 +42,8 @@ Model names carry no version: the current model of that family is meant.
 
 Repository skills live in `.claude/skills/` (Claude Code reads only this) and as an
 identical copy in `.agents/skills/` (Codex). Both are real copies, so Windows, WSL,
-and archived handoffs see the same bytes. Skills marked
-`disable-model-invocation` run only when the user invokes them. Invoke a matching skill
-through the Skill tool (other harnesses: open its `SKILL.md` and follow it).
+and archived handoffs see the same bytes.
+Invoke a matching skill through the Skill tool (other harnesses: open its `SKILL.md` and follow it).
 
 Mandatory use:
 
@@ -52,10 +51,12 @@ Mandatory use:
 | --- | --- |
 | Review of a ticket that changes code | `code-review` (planner, before commit) |
 | Creating or editing the glossary or an ADR, or a term/decision is being settled | `domain-modeling` |
-| Turning a settled conversation into a spec / tickets | `to-spec`, then `to-tickets` |
 | Implementing a ticket with behaviour change | `tdd` (implementer) |
 | Hard bug, flaky or unexplained failure | `diagnosing-bugs` |
 | Editing `AGENTS.md`, `CLAUDE.md`, agent docs or skills | `writing-for-agents` |
+
+Skills marked `disable-model-invocation` (e.g. `to-spec`, `to-tickets`, `triage`,
+`implement`) start only when the user types them; when one fits, suggest it.
 
 Skip on purpose (token cost without benefit):
 
@@ -73,6 +74,20 @@ Update skills on a `chore/skills-update` branch.
   and the project docs it points to, including its guardrails.
 - `setup-matt-pocock-skills`: its `## Agent skills` block goes into `AGENTS.md`, also
   when the skill proposes `CLAUDE.md`; `CLAUDE.md` stays a plain `@AGENTS.md` import.
+
+## Documentation layout
+
+Where skills and agents put documents; the skill defaults apply where this table is
+silent.
+
+| Document | Location | Written by |
+| --- | --- | --- |
+| Specs and tickets | GitHub issues (`.scratch/<feature>/` only with a local tracker) | `to-spec`, `to-tickets` |
+| Glossary, ADRs | `GLOSSARY.md`, `docs/adr/` | `domain-modeling` |
+| Coding standards (judgement calls; mechanical rules become checks) | `CODING_STANDARDS.md` | `retro`, by hand |
+| Research notes | `docs/research/<slug>.md` | `research` |
+| Rejected enhancements | `.out-of-scope/` | `triage` |
+| Handoffs | OS temp directory, outside the repo | `handoff` |
 
 ## Correction budget
 
