@@ -47,7 +47,7 @@ füllen, `/setup-matt-pocock-skills`, Labels, PR auf `chore/agent-setup`.
 
 **Bestehendes Repo** (Skill ist dort noch nicht vorhanden), Prompt:
 
-> Übernimm das Agent-Setup aus `hubisan/coding-agent-setup` in dieses Repo. Klone das
+> Übernimm das Agent-Setup aus https://github.com/hubisan/coding-agent-setup in dieses Repo. Klone das
 > Template in ein temporäres Verzeichnis und folge dort
 > `.claude/skills/adopt-agent-setup/SKILL.md`.
 
