@@ -57,8 +57,8 @@ Done when the dry run reports zero conflicts and no project rule lives only in a
 Run `<template>/scripts/sync-coding-agent-setup.sh .`. Then merge the template into
 each kept seed file:
 
-- `AGENTS.md`: take the template's section structure (Start here, Progressive
-  disclosure, Repository guardrails, Agent skills) and slot every existing project rule
+- `AGENTS.md`: take the template's section structure (Start here, Read when,
+  Repository guardrails, Agent skills) and slot every existing project rule
   into it; fill or delete each `PROJECT` placeholder. Keep it pointer-only; load the
   `writing-for-agents` skill for this edit.
 - `Makefile`: a `ci` target that runs the repo's full check (format, lint, tests).
@@ -70,14 +70,14 @@ Done when `grep -rn PROJECT AGENTS.md Makefile .github` finds nothing and
 ## 5. Configure skills and labels
 
 Run `/setup-matt-pocock-skills`. Its `## Agent skills` block goes into `AGENTS.md`,
-also when the skill proposes `CLAUDE.md`. Keep `docs/agents/triage-labels.md` from
-the template. Then run `scripts/labels-setup.sh` (needs `gh`). Show the user
+also when the skill proposes `CLAUDE.md`. If it rewrites
+`docs/agents/triage-labels.md`, restore the template version. Then run `scripts/labels-setup.sh` (needs `gh`). Show the user
 which existing labels are not in the table; add `--prune` to delete them only after
 the user agrees, after moving issues that carry them (e.g. `wontfix` → closed as not
 planned).
 
-Done when `docs/agents/issue-tracker.md` and `domain.md` exist and the labels exist
-or the user has the command.
+Done when `docs/agents/issue-tracker.md` and `domain.md` exist and the tracker
+holds exactly the labels the user agreed to.
 
 ## 6. Deliver
 
