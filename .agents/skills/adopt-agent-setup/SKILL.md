@@ -71,8 +71,10 @@ Done when `grep -rn PROJECT AGENTS.md Makefile .github` finds nothing and
 
 Run `/setup-matt-pocock-skills`. Its `## Agent skills` block goes into `AGENTS.md`,
 also when the skill proposes `CLAUDE.md`. Keep `docs/agents/triage-labels.md` from
-the template. Then run `scripts/labels-setup.sh` (needs `gh`; otherwise tell the user
-to run it).
+the template. Then run `scripts/labels-setup.sh` (needs `gh`). Show the user
+which existing labels are not in the table; add `--prune` to delete them only after
+the user agrees, after moving issues that carry them (e.g. `wontfix` → closed as not
+planned).
 
 Done when `docs/agents/issue-tracker.md` and `domain.md` exist and the labels exist
 or the user has the command.
