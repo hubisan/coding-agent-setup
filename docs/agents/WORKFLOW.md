@@ -2,12 +2,8 @@
 
 ## Work artifact order
 
-Prefer the most downstream existing artifact:
-
-`ticket > spec > conversation`
-
-Do not repeat upstream discovery when the downstream artifact already resolves the
-decision. Planning may happen outside the coding agent; once the resulting spec,
+The artifact order (`AGENTS.md`) means: when a downstream artifact settles a
+decision, build on it and skip the upstream discovery. Planning may happen outside the coding agent; once the resulting spec,
 ticket, ADR, or domain doc is checked into the repository, treat it as authoritative
 for its scope.
 
@@ -25,8 +21,8 @@ review -> at most one correction -> final CI -> commit.
 
 Model names carry no version: the current model of that family is meant.
 
-- The planner is the main session; the user selects its model/effort (`/model`,
-  `/effort`). Subagent model and effort are fixed in `.claude/agents/*.md`.
+- The user sets the planner's model and effort (`/model`, `/effort`); subagent model
+  and effort are fixed in `.claude/agents/*.md`.
 - The planner reads the ticket, writes a short plan (owned files, seam, focused test
   command, relevant project-doc sections), and delegates to `implementer`.
 - Parallelise for speed: start as many implementers at once as there are independent
@@ -45,7 +41,8 @@ Model names carry no version: the current model of that family is meant.
 ## Skills
 
 Repository skills live in `.claude/skills/` (Claude Code reads only this) and as an
-identical copy in `.agents/skills/` (Codex). Copies, not symlinks. Skills marked
+identical copy in `.agents/skills/` (Codex). Both are real copies, so Windows, WSL,
+and archived handoffs see the same bytes. Skills marked
 `disable-model-invocation` run only when the user invokes them. Invoke a matching skill
 through the Skill tool (other harnesses: open its `SKILL.md` and follow it).
 
@@ -66,8 +63,7 @@ Skip on purpose (token cost without benefit):
   generated files, formatting); the planner's own diff review is enough there.
 - Any skill for Git/GitHub housekeeping (commit, PR, merge, labels).
 
-Update skills only on a `chore/skills-update` branch and review the diff before
-committing.
+Update skills on a `chore/skills-update` branch.
 
 - Repository overrides for `implement`: "full test suite" means the final CI below;
   commit per the Commits section. Project-specific overrides: `AGENTS.md`.
@@ -75,8 +71,8 @@ committing.
   `HEAD` plus working tree via `git diff HEAD` before committing). The spec source is
   the active GitHub ticket issue and its spec issue. Standards sources are `AGENTS.md`
   and the project docs it points to, including its guardrails.
-- Re-running `setup-matt-pocock-skills`: keep the `## Agent skills` block in
-  `AGENTS.md`; `CLAUDE.md` stays a plain `@AGENTS.md` import.
+- `setup-matt-pocock-skills`: its `## Agent skills` block goes into `AGENTS.md`, also
+  when the skill proposes `CLAUDE.md`; `CLAUDE.md` stays a plain `@AGENTS.md` import.
 
 ## Correction budget
 
@@ -95,35 +91,28 @@ substantial: report them, fix them only inside an already-planned correction.
    correction and no escalation without approval.
 
 Also stop and ask when a failure exposes a wrong architectural assumption, a material
-scope change, a needed change to the functional specification, the DB, or the architecture, or the same
-structural failure repeating. Final-CI format/lint fixes are not a correction cycle; a
+scope change, a needed change to the functional specification, the DB, or the
+architecture, or the same structural failure repeating. Final-CI format/lint fixes are not a correction cycle; a
 failing test that needs a code change is.
 
 ## Testing
 
-- The implementer runs the narrowest relevant tests while working.
-  The focused test command is in `AGENTS.md`, "Repository guardrails".
-- Full CI once at the end of a completed package: `make ci` (same command as
-  `.github/workflows/ci.yml`).
-- Keep command output compact; inspect detailed logs only when a step fails.
-- Never claim checks passed when their environment (OS, browser, DB) was unavailable;
-  report them as unverified.
+- The implementer runs the narrowest relevant tests (focused test command:
+  `AGENTS.md`) while working.
+- Full CI once at the end of a completed package: `make ci`, the same command as
+  `.github/workflows/ci.yml`.
 
 ## Context budget
 
-Load context progressively. Prefer targeted searches and ranges over broad reads.
-Do not scan `.agents/skills/` or `.claude/skills/`. Subagent briefs name the exact
-files and sections to load so the implementer does not rediscover them.
+Subagent briefs name the exact files and sections to load, so the implementer starts
+where the planner stopped.
 
-Do not rerun commands merely because output was long. Narrow the next inspection to
-the relevant file, symbol, error, or line range.
-
-Repository skill installations use copied files rather than symlinks so Windows, WSL,
-and archived handoffs see the same bytes reliably.
+Keep command output compact. When output is long, narrow the next inspection to the
+relevant file, symbol, error, or line range; open detailed logs only when a step fails.
 
 ## Commits
 
-Agents may commit on the current feature branch, one commit per completed ticket
+One commit per completed ticket
 after review and focused tests (or after final CI for the last ticket of a package).
 Tick the ticket's acceptance criteria in the issue and close it through the PR
 (`Closes #<n>` in the PR body).
@@ -134,13 +123,12 @@ Tick the ticket's acceptance criteria in the issue and close it through the PR
   `login`, `db`, `ui`); `!` after the scope marks a breaking change.
 - Ticket commits add a footer `Refs: #<ticket>` so `code-review` finds the spec
   source.
-- Branches are always named `<type>/<feature-slug>` using the same types
-  (e.g. `feat/user-export`, `fix/date-rounding`, `chore/agent-workflow`). This also applies to cloud sessions: a generated
-  harness branch name (e.g. `claude/<random-words>`) is not used for pushes or PRs;
-  create a descriptively named branch from the current base instead. One branch per
-  coherent change; start the next change on a new branch from the updated base.
-- Never commit secrets, `.env`, or generated output (see `AGENTS.md`).
-  Never rewrite shared history; push, PR and merge follow `AGENTS.md`.
+- Branches are named `<type>/<feature-slug>` with the same types (e.g.
+  `feat/user-export`, `fix/date-rounding`). Cloud sessions too: create such a branch
+  from the current base in place of the generated harness branch (e.g.
+  `claude/<random-words>`). One branch per coherent change; start the next change from
+  the updated base.
+- Shared history stays as pushed: add commits, never rewrite. Merge rule: `AGENTS.md`.
 
 ## Completion
 
@@ -148,7 +136,7 @@ Before declaring a package complete:
 
 1. review the diff against the active ticket/spec;
 2. run the final CI possible in the current environment;
-3. update `CHANGELOG.md` for user-visible or contract-relevant changes, before the
-   final commit;
+3. if the repo keeps a `CHANGELOG.md`, update it for user-visible or contract-relevant
+   changes before the final commit;
 4. state what was implemented, what was tested, what remains untested, and the next
    ticket without implementing it unless requested.
