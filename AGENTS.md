@@ -43,7 +43,7 @@ Issues and specs are GitHub issues in this repo. See `docs/agents/issue-tracker.
 
 ### Triage labels
 
-Default mattpocock/skills vocabulary plus `backlog` and `someday`. See `docs/agents/triage-labels.md`.
+Default mattpocock/skills vocabulary plus `backlog`, `someday`, `duplicate`; `wontfix` = close as not planned. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
