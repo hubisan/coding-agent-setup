@@ -1,8 +1,15 @@
 # coding-agent-setup
 
 Vorlage für das Agenten-Setup unserer Repos: Skills, Rollen, Workflow und Sync-Skript
-an einem Ort. Funktioniert mit **Claude Code** (liest `CLAUDE.md` → `@AGENTS.md`)
-und **Codex** (liest `AGENTS.md`).
+an einem Ort. Funktioniert mit **Claude Code** und **Codex**.
+
+- `AGENTS.md` ist die einzige Anweisungsdatei. Codex liest sie direkt, Claude Code ab
+  v2.1.277 auch.
+- `CLAUDE.md` enthält nur `@AGENTS.md`. Es sichert ältere Claude-Versionen ab und
+  Sessions mit `CLAUDE.local.md` (das schaltet das direkte Lesen von `AGENTS.md` ab).
+  Doppelt geladen wird nichts.
+- Claude Code liest nichts unter `.agents/`. Skills und Subagents brauchen deshalb
+  `.claude/`; `.agents/skills/` ist die Kopie für Codex.
 
 Dieses Repo ist die einzige Quelle für das generische Setup. Andere Repos kopieren
 es und erfinden es nicht neu.
@@ -11,37 +18,48 @@ es und erfinden es nicht neu.
 
 | Pfad | Zweck | Sync |
 | --- | --- | --- |
-| `.claude/skills/`, `.agents/skills/`, `skills-lock.json` | Matt-Pocock-Skills (identische Kopien, alle model-invocable) | sync |
-| `scripts/skills-update.sh`, `make skills-update` | Skills aktualisieren, Kopie und Flag-Entfernung sicherstellen | sync |
+| `.claude/skills/`, `.agents/skills/`, `skills-lock.json` | Matt-Pocock-Skills (identische Kopien, keine Symlinks) | sync |
 | `.claude/agents/implementer*.md` | Implementer-Subagents (Standard und eskaliert) | sync |
 | `docs/agents/WORKFLOW.md` | Rollen, Parallelisierung, Korrekturbudget, Commits, Skills | sync |
-| `docs/agents/triage-labels.md` | Triage-Labels inkl. `geparkt` | sync |
-| `CLAUDE.md` | nur `@AGENTS.md` | sync |
+| `docs/agents/triage-labels.md`, `scripts/labels-setup.sh` | Triage-Labels (Kategorie und Status) inkl. `backlog` und `someday`, mit Farben; Skript legt sie per `gh` an | sync |
+| `docs/agents/issue-tracker.md`, `domain.md` | Konfiguration dieses Repos (von `/setup-matt-pocock-skills`) | – |
+| `CLAUDE.md` | nur `@AGENTS.md` (Absicherung, siehe oben) | sync |
 | `AGENTS.md`, `Makefile`, `.github/workflows/ci.yml` | Gerüst mit `PROJECT`-Platzhaltern | seed |
 | `.gitattributes`, `.editorconfig` | LF/UTF-8 | seed |
 
 `sync` = wird beim Sync überschrieben. `seed` = wird nur kopiert, wenn die Datei fehlt;
-danach gehört sie dem Projekt. Die Liste steht in `sync-manifest.txt`.
+danach gehört sie dem Projekt. `import` (`CLAUDE.md`) = wird nur geschrieben, wenn sie
+fehlt oder schon `@AGENTS.md` ist; hat sie eigenen Inhalt, bricht der Sync ab, ohne
+etwas zu schreiben. Die Liste steht in `sync-manifest.txt`.
 
 Nicht enthalten, weil projektspezifisch: `docs/agents/CURRENT.md`, `domain.md`,
 `issue-tracker.md` (erzeugt `/setup-matt-pocock-skills`) und Projekt-Doku.
 
-## Neues Repo
+## Setup in ein Repo übernehmen
 
-1. Auf GitHub **Use this template** → neues Repo erstellen.
-2. In der ersten Agenten-Session den Prompt aus `SETUP.md` verwenden.
+Das Skript kopiert nur. Das Zusammenführen mit bestehenden Regeln macht die KI mit dem
+Skill `adopt-agent-setup` (`.claude/skills/adopt-agent-setup/SKILL.md`): Bestand
+aufnehmen, `CLAUDE.md` nach `AGENTS.md` verschieben, syncen, Platzhalter und CI
+füllen, `/setup-matt-pocock-skills`, Labels, PR auf `chore/agent-setup`.
 
-## Bestehendes Repo
+**Neues Repo:** Auf GitHub **Use this template**, dann in der ersten Session
+`/adopt-agent-setup`.
+
+**Bestehendes Repo** (Skill ist dort noch nicht vorhanden), Prompt:
+
+> Übernimm das Agent-Setup aus `hubisan/coding-agent-setup` in dieses Repo. Klone das
+> Template in ein temporäres Verzeichnis und folge dort
+> `.claude/skills/adopt-agent-setup/SKILL.md`.
+
+Derselbe Prompt (oder `/adopt-agent-setup`, sobald der Skill im Repo ist) aktualisiert
+ein Repo später auf den neuen Stand.
+
+Nur kopieren, ohne KI (Linux/WSL; löscht nichts, meldet `extra`):
 
 ```bash
-scripts/sync-coding-agent-setup.sh --dry-run ../mein-repo   # zeigt, was sich ändert
+scripts/sync-coding-agent-setup.sh --dry-run ../mein-repo
 scripts/sync-coding-agent-setup.sh ../mein-repo
-cd ../mein-repo && git switch -c chore/agent-setup && git diff
 ```
-
-Das Skript läuft unter Linux/WSL. Es löscht nichts: Dateien, die nur im Ziel liegen
-(z. B. entfernte Skills), meldet es als `extra`. Fehlen `AGENTS.md` oder `Makefile`,
-danach die Schritte aus `SETUP.md` ausführen.
 
 ## Verbesserungen
 
@@ -50,11 +68,14 @@ danach die Schritte aus `SETUP.md` ausführen.
 
 Änderungen an `sync`-Dateien direkt im Ziel-Repo gehen beim nächsten Sync verloren.
 
-Skills aktualisieren: `make skills-update` (oder `make skills-update SKILLS="tdd"`),
-Diff prüfen, auf `chore/skills-update` committen.
-
 ## Optionales Muster: Fake-Daten-Modus
 
 Für UI-Repos mit Datenbank hat sich bewährt: ein Modus mit In-Memory-Daten (ohne DB)
 plus ein Screenshot-Skript, damit Agenten UI-Änderungen selbst ansehen können
-(Beispiel: `controlling-db-web`, `scripts/run-fake.sh`, `scripts/screenshot.mjs`).
+(z. B. `scripts/run-fake.sh` startet die App mit Fake-Daten, `scripts/screenshot.mjs`
+macht Screenshots in hellem und dunklem Modus).
+
+## Lizenz
+
+MIT, siehe `LICENSE`. Die Skills von `mattpocock/skills` stehen ebenfalls unter MIT
+(`THIRD-PARTY-LICENSES.md`); die Datei wird mit den Skills synchronisiert.

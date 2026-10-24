@@ -44,8 +44,9 @@ Model names carry no version: the current model of that family is meant.
 
 ## Skills
 
-All repository skills (`.claude/skills/`, mirrored in `.agents/skills/`) are
-model-invocable; none carries `disable-model-invocation`. Invoke a matching skill
+Repository skills live in `.claude/skills/` (Claude Code reads only this) and as an
+identical copy in `.agents/skills/` (Codex). Copies, not symlinks. Skills marked
+`disable-model-invocation` run only when the user invokes them. Invoke a matching skill
 through the Skill tool (other harnesses: open its `SKILL.md` and follow it).
 
 Mandatory use:
@@ -65,10 +66,8 @@ Skip on purpose (token cost without benefit):
   generated files, formatting); the planner's own diff review is enough there.
 - Any skill for Git/GitHub housekeeping (commit, PR, merge, labels).
 
-Update skills only with `make skills-update` (WSL/Linux; single skills:
-`make skills-update SKILLS="tdd code-review"`); it restores the copied `.claude/skills` mirror and
-strips the upstream `disable-model-invocation` flag. Commit the result on
-`chore/skills-update` after reviewing the diff.
+Update skills only on a `chore/skills-update` branch and review the diff before
+committing.
 
 - Repository overrides for `implement`: "full test suite" means the final CI below;
   commit per the Commits section. Project-specific overrides: `AGENTS.md`.
@@ -120,7 +119,7 @@ Do not rerun commands merely because output was long. Narrow the next inspection
 the relevant file, symbol, error, or line range.
 
 Repository skill installations use copied files rather than symlinks so Windows, WSL,
-and archived handoffs see the same bytes reliably (`make skills-update` keeps it so).
+and archived handoffs see the same bytes reliably.
 
 ## Commits
 
