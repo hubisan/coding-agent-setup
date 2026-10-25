@@ -90,6 +90,13 @@ silent.
 | Rejected enhancements | `.out-of-scope/` | `triage` |
 | Handoffs | OS temp directory, outside the repo | `handoff` |
 
+## Writing for people
+
+Docs that people read (README, `docs/`, PR bodies, issues) use **plain language**, in
+the spirit of ASD-STE100: answer first; short sentences, active voice; one term for one
+meaning; define each technical term at first use; no filler. Agent instructions follow
+the `writing-for-agents` skill instead.
+
 ## Correction budget
 
 Initial implementation, including its own red/green fixes, does not count.
@@ -152,7 +159,7 @@ Before declaring a package complete:
 
 1. review the diff against the active ticket/spec;
 2. run the final CI possible in the current environment;
-3. if the repo keeps a `CHANGELOG.md`, update it for user-visible or contract-relevant
-   changes before the final commit;
+3. update every doc the change makes stale (README, `docs/`, `AGENTS.md` pointers,
+   `CHANGELOG.md` if the repo keeps one) in the same PR; if none, say so;
 4. state what was implemented, what was tested, what remains untested, and the next
    ticket without implementing it unless requested.
