@@ -4,7 +4,7 @@
 # when missing, "import" copies when missing or already identical.
 # Local changes are detected against the template commit recorded in the target's
 # .agent-setup-version by the previous sync. Conflicts (local change, own import
-# content, symlink on the path) are collected first: if any exists, nothing is written.
+# content, symlink leading outside the repo) are collected first: if any exists, nothing is written.
 # Usage: scripts/sync-coding-agent-setup.sh [--dry-run] <target-repo-path>
 set -euo pipefail
 
@@ -44,21 +44,18 @@ to_copy=()
 
 conflict() { echo "  conflict  $1 ($2)"; conflicts=$((conflicts + 1)); }
 
-# A symlink anywhere on the target path could redirect a write outside the repo.
-has_symlink() {
-  local p="$dst" part
-  IFS=/ read -ra parts <<<"$1"
-  for part in "${parts[@]}"; do
-    p="$p/$part"
-    [[ -L "$p" ]] && return 0
-  done
-  return 1
+# A symlink on the target path may point anywhere; writes must stay inside the repo.
+# In-repo symlinks (e.g. .claude/skills/x -> ../../.agents/skills/x) are fine.
+leaves_repo() {
+  local real
+  real=$(realpath -m "$dst/$1")
+  [[ "$real" != "$dst/"* ]]
 }
 
 plan_file() { # <mode> <relpath>
   local mode=$1 rel=$2 s="$src/$2" d="$dst/$2"
-  if has_symlink "$rel"; then
-    conflict "$rel" "symlink on the path"; return
+  if leaves_repo "$rel"; then
+    conflict "$rel" "symlink on the path leads outside the repo"; return
   fi
   if [[ ! -e "$d" ]]; then
     echo "  add       $rel"; added=$((added + 1))
@@ -105,7 +102,7 @@ while read -r mode path _; do
   fi
 done < "$src/sync-manifest.txt"
 
-if has_symlink "$version_file"; then conflict "$version_file" "symlink on the path"; fi
+if leaves_repo "$version_file"; then conflict "$version_file" "symlink leads outside the repo"; fi
 
 echo "template ${base_sha:-none} -> $src_sha"
 echo "added $added, updated $updated, kept $kept, unchanged $same, conflicts $conflicts"
