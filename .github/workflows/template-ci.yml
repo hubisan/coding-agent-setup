@@ -1,0 +1,19 @@
+name: Template CI
+
+# Tests this template repo only; not in sync-manifest.txt, so targets never get it.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  sync-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync regression tests
+        run: tests/sync.sh

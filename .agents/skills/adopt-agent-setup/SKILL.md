@@ -19,9 +19,11 @@ whenever a step needs a decision the repo cannot answer.
 Clone `https://github.com/hubisan/coding-agent-setup` into a temporary directory
 outside this repo. Read its `sync-manifest.txt`: it names every generic file and its
 mode (`sync` overwrites, `seed` only when missing, `import` = `CLAUDE.md`, a plain
-`@AGENTS.md`).
+`@AGENTS.md`). If this repo has `.agent-setup-version`, it is an **update**: show the
+user `git -C <template> log --oneline <recorded-sha>..HEAD` as the changes to adopt.
 
-Done when the clone exists and you know the mode of each listed path.
+Done when the clone exists, you know the mode of each listed path, and on an update
+the user has seen the template changes.
 
 ## 2. Inventory
 
@@ -29,10 +31,12 @@ Run `<template>/scripts/sync-coding-agent-setup.sh --dry-run .` and read this re
 existing agent instructions: `CLAUDE.md`, `AGENTS.md`, `.claude/`, `.agents/`, plus
 CI, `Makefile`/scripts and test commands. List for the user:
 
-- **conflicts**: `CLAUDE.md` with own content;
-- **updates** to `sync` files that this repo changed locally (diff them: a local change
-  is either a project rule to move into `AGENTS.md`, or a template improvement to
-  propose upstream);
+- **conflicts**: `CLAUDE.md` with own content, `sync` files changed locally since the
+  recorded version, symlinks on a target path;
+- **updates** marked "no recorded version" (first adoption): diff each one, since the
+  script cannot tell a local change from an older template;
+- each local change is either a project rule to move into `AGENTS.md`, or a template
+  improvement to propose upstream;
 - **kept** seed files that need the template parts merged in (step 4);
 - **extra** files and own skills whose name matches a template skill;
 - project rules that contradict `docs/agents/WORKFLOW.md` (branch names, commits,
@@ -47,7 +51,9 @@ contradiction.
 Move the content of an existing `CLAUDE.md` into `AGENTS.md` (merge duplicates, keep
 the wording of project rules), then make `CLAUDE.md` the single import line. Move
 local changes to `sync` files that are project rules into `AGENTS.md` or a project
-doc it points to.
+doc it points to, then restore those files (`git checkout` of the last synced state or
+a copy from the template). Replace a symlink on a target path with a real directory
+only after the user agrees.
 
 Done when the dry run reports zero conflicts and no project rule lives only in a
 `sync` file.
@@ -83,8 +89,8 @@ holds exactly the labels the user agreed to.
 
 ## 6. Deliver
 
-Run `make ci`, commit (Conventional Commits, e.g. `chore: adopt agent setup`), push,
-open a PR. The PR body lists the merged project rules, the decided contradictions,
+Run `make ci`, commit together with `.agent-setup-version` (Conventional Commits,
+e.g. `chore: adopt agent setup`), push, open a PR. The PR body lists the merged project rules, the decided contradictions,
 the template improvements to propose upstream, and every check left unrun.
 
 Done when the PR is open.
