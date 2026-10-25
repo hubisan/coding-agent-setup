@@ -14,8 +14,8 @@
   `docs/agents/WORKFLOW.md`.
 - Naming domain concepts or settling architecture decisions: `docs/agents/domain.md`.
 - Writing or reviewing code: `CODING_STANDARDS.md` (if present).
-- Creating a document (research, spec, ADR, notes): `docs/agents/WORKFLOW.md`,
-  "Documentation layout".
+- Creating or editing a document (README, research, spec, ADR, notes):
+  `docs/agents/WORKFLOW.md`, "Documentation layout" and "Writing for people".
 - <!-- PROJECT: pointers to project docs (code conventions, DB contract, ...). -->
 - Load context with targeted searches and line ranges. Read history, generated files,
   data exports, old handoffs, other specs, and skill directories only when the task
