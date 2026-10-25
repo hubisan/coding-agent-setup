@@ -60,8 +60,11 @@ doc it points to, then restore those files (`git checkout` of the last synced st
 a copy from the template). Replace a symlink that leads outside the repo with a real
 directory only after the user agrees.
 
-Done when the dry run reports zero conflicts and no project rule lives only in a
-`sync` file.
+Agent instructions are English: translate project rules you move, and existing
+`docs/agents/` files, keeping their meaning.
+
+Done when the dry run reports zero conflicts, no project rule lives only in a `sync`
+file, and every agent instruction is in English.
 
 ## 4. Sync and merge
 

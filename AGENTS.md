@@ -23,6 +23,8 @@
 
 ## Repository guardrails
 
+- Write agent instructions (`AGENTS.md`, `docs/agents/`, skills, agents) in English,
+  whatever language the user speaks.
 - Preserve LF/UTF-8 and the existing project structure.
 - Commit reviewed ticket work on a `<type>/<slug>` branch, push, open a PR. Merge
   simple changes (small, local, `make ci` green, no DB or architecture decision)
