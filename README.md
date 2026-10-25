@@ -56,6 +56,11 @@ Ins Ziel kommen nur die Dateien aus `sync-manifest.txt`. README, `LICENSE`,
 `docs/upstream/`, Sync-Skript, Manifest und die Konfiguration dieses Repos
 (`issue-tracker.md`, `domain.md`) bleiben hier.
 
+Jeder erfolgreiche Sync schreibt den Commit des Templates nach `.agent-setup-version`
+im Ziel-Repo (mitcommitten). Daran erkennt der nächste Sync lokale Änderungen an
+`sync`-Dateien: Er meldet sie als Konflikt und schreibt dann nichts. Beim Update zeigt
+der Skill die Template-Änderungen seit diesem Stand.
+
 Nur kopieren, ohne KI (Linux/WSL; löscht nichts, meldet `extra`):
 
 ```bash
@@ -68,7 +73,8 @@ scripts/sync-coding-agent-setup.sh ../mein-repo
 1. Änderung zuerst hier machen (Branch `<type>/<slug>`, PR).
 2. Danach in die Repos syncen.
 
-Änderungen an `sync`-Dateien direkt im Ziel-Repo gehen beim nächsten Sync verloren.
+Änderungen an `sync`-Dateien direkt im Ziel-Repo blockieren den nächsten Sync, bis sie
+nach `AGENTS.md` oder ins Template verschoben sind.
 
 ## Optionales Muster: Fake-Daten-Modus
 
