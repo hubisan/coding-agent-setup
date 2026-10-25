@@ -120,4 +120,6 @@ for rel in "${to_copy[@]}"; do
   [[ -x "$src/$rel" ]] && chmod +x "$dst/$rel"
 done
 echo "$src_sha" > "$dst/$version_file"
+"$dst/scripts/skills-mirror.sh" "$dst" >/dev/null
+echo ".claude/skills rebuilt from .agents/skills ($(sed -n 's/^skills=//p' "$dst/.agent-setup.conf" 2>/dev/null || echo link))"
 echo "Review with: git -C '$dst' status && git -C '$dst' diff"
