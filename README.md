@@ -18,7 +18,9 @@ es und erfinden es nicht neu.
 
 | Pfad | Zweck | Sync |
 | --- | --- | --- |
-| `.claude/skills/`, `.agents/skills/`, `skills-lock.json` | Matt-Pocock-Skills (identische Kopien, keine Symlinks) | sync |
+| `.agents/skills/`, `skills-lock.json` | Skills (echter Ordner, von Codex gelesen) | sync |
+| `.claude/skills/`, `scripts/skills-mirror.sh` | Für Claude Code aus `.agents/skills/` abgeleitet: Symlinks, oder Kopien bei `skills=copy` | vom Sync neu aufgebaut |
+| `.agent-setup.conf` | `skills=link` (Standard) oder `skills=copy` (Windows ohne WSL) | seed |
 | `.claude/agents/implementer*.md` | Implementer-Subagents (Standard und eskaliert) | sync |
 | `docs/agents/WORKFLOW.md` | Rollen, Parallelisierung, Korrekturbudget, Commits, Skills | sync |
 | `docs/agents/triage-labels.md`, `scripts/labels-setup.sh` | Triage-Labels (Kategorie und Status) mit Farben; Skript legt sie per `gh` an, `--prune` löscht übrige | sync |

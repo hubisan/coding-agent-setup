@@ -18,7 +18,7 @@ git_q() { git -c user.name=t -c user.email=t@t -c commit.gpgsign=false "$@" -q; 
 # Template: copy of the working tree as a fresh git repo.
 tpl="$tmp/template"
 mkdir "$tpl"
-(cd "$repo" && git ls-files -co --exclude-standard -z | xargs -0 cp --parents -t "$tpl")
+(cd "$repo" && git ls-files -co --exclude-standard -z | xargs -0 cp -P --parents -t "$tpl")
 git_q -C "$tpl" init
 git -C "$tpl" add -A && git_q -C "$tpl" commit -m base
 sync() { "$tpl/scripts/sync-coding-agent-setup.sh" "$@"; }

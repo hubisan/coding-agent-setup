@@ -40,10 +40,10 @@ Model names carry no version: the current model of that family is meant.
 
 ## Skills
 
-Repository skills live in `.claude/skills/` (Claude Code reads only this) and as an
-identical set in `.agents/skills/` (Codex): real copies, or symlinks from
-`.claude/skills/<name>` into `.agents/skills/` (skills CLI default; fine unless the repo
-must work on Windows).
+Repository skills live in `.agents/skills/` (read by Codex); edit and add them only
+there. `.claude/skills/` (the only place Claude Code reads) is derived by
+`scripts/skills-mirror.sh`: symlinks into `.agents/skills/`, or real copies when
+`.agent-setup.conf` says `skills=copy` (repos that must run on Windows without WSL).
 Invoke a matching skill through the Skill tool (other harnesses: open its `SKILL.md` and follow it).
 
 Mandatory use:
@@ -65,7 +65,7 @@ Skip on purpose (token cost without benefit):
   generated files, formatting); the planner's own diff review is enough there.
 - Any skill for Git/GitHub housekeeping (commit, PR, merge, labels).
 
-Update skills on a `chore/skills-update` branch.
+Update skills on a `chore/skills-update` branch, then run `scripts/skills-mirror.sh`.
 
 - Repository overrides for `implement`: "full test suite" means the final CI below;
   commit per the Commits section. Project-specific overrides: `AGENTS.md`.

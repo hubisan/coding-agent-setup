@@ -38,12 +38,17 @@ CI, `Makefile`/scripts and test commands. List for the user:
 - each local change is either a project rule to move into `AGENTS.md`, or a template
   improvement to propose upstream;
 - **kept** seed files that need the template parts merged in (step 4);
-- **extra** files and own skills whose name matches a template skill;
+- **extra** files, own skills whose name matches a template skill, and skills that
+  live only in `.claude/skills/` (move them to `.agents/skills/`);
 - project rules that contradict `docs/agents/WORKFLOW.md` (branch names, commits,
   merge rule, roles).
 
-Done when every listed path is classified and the user has decided each
-contradiction.
+Ask the user whether this repo must run on Windows without WSL (Git for Windows
+checks symlinks out as text files by default). Yes: write `skills=copy` to
+`.agent-setup.conf` before the sync; no: `skills=link` (the default).
+
+Done when every listed path is classified, the user has decided each contradiction,
+and the skills mode is set.
 
 ## 3. Move instructions into AGENTS.md
 
