@@ -19,8 +19,8 @@ whenever a step needs a decision the repo cannot answer.
 Clone `https://github.com/hubisan/coding-agent-setup` into a temporary directory
 outside this repo. Read its `sync-manifest.txt`: it names every generic file and its
 mode (`sync` overwrites, `seed` only when missing, `import` = `CLAUDE.md`, a plain
-`@AGENTS.md`). If this repo has `.agent-setup-version`, it is an **update**: show the
-user `git -C <template> log --oneline <recorded-sha>..HEAD` as the changes to adopt.
+`@AGENTS.md`). If this repo has `.agent-setup-version`, it is an **update**: note its SHA as the
+**recorded SHA** (the sync in step 4 overwrites the file), and show the user `git -C <template> log --oneline <recorded SHA>..HEAD` as the changes to adopt.
 
 Done when the clone exists, you know the mode of each listed path, and on an update
 the user has seen the template changes.
@@ -81,7 +81,7 @@ each kept seed file:
   `if:` line that skips the job in the template repo.
 
 On an update, kept seeds never change by themselves: read
-`git -C <template> diff <recorded-sha>..HEAD -- <seed paths>` and carry each template
+`git -C <template> diff <recorded SHA>..HEAD -- <seed paths>` and carry each template
 change into the project version, or tell the user why not.
 
 Done when `grep -rn PROJECT AGENTS.md Makefile .github` finds nothing and
