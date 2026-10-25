@@ -32,7 +32,7 @@ existing agent instructions: `CLAUDE.md`, `AGENTS.md`, `.claude/`, `.agents/`, p
 CI, `Makefile`/scripts and test commands. List for the user:
 
 - **conflicts**: `CLAUDE.md` with own content, `sync` files changed locally since the
-  recorded version, symlinks on a target path;
+  recorded version, symlinks that lead outside the repo;
 - **updates** marked "no recorded version" (first adoption): diff each one, since the
   script cannot tell a local change from an older template;
 - each local change is either a project rule to move into `AGENTS.md`, or a template
@@ -52,8 +52,8 @@ Move the content of an existing `CLAUDE.md` into `AGENTS.md` (merge duplicates, 
 the wording of project rules), then make `CLAUDE.md` the single import line. Move
 local changes to `sync` files that are project rules into `AGENTS.md` or a project
 doc it points to, then restore those files (`git checkout` of the last synced state or
-a copy from the template). Replace a symlink on a target path with a real directory
-only after the user agrees.
+a copy from the template). Replace a symlink that leads outside the repo with a real
+directory only after the user agrees.
 
 Done when the dry run reports zero conflicts and no project rule lives only in a
 `sync` file.

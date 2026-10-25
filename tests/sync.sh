@@ -70,6 +70,13 @@ check_not "symlinked dir fails" sync "$t3"
 check "outside untouched" test -z "$(ls -A "$tmp/outside")"
 check_not "no version after conflict" test -e "$t3/.agent-setup-version"
 
+# In-repo symlinks (skills CLI layout) are allowed and written through.
+t4=$(new_target inrepo)
+mkdir -p "$t4/.agents/skills/tdd" "$t4/.claude/skills"
+ln -s ../../.agents/skills/tdd "$t4/.claude/skills/tdd"
+check "in-repo symlink allowed" sync "$t4"
+check "symlink kept" test -L "$t4/.claude/skills/tdd"
+
 # Dirty template is refused.
 echo dirty >> "$tpl/README.md"
 check_not "dirty template refused" sync --dry-run "$(new_target dirty)"

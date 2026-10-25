@@ -41,8 +41,9 @@ Model names carry no version: the current model of that family is meant.
 ## Skills
 
 Repository skills live in `.claude/skills/` (Claude Code reads only this) and as an
-identical copy in `.agents/skills/` (Codex). Both are real copies, so Windows, WSL,
-and archived handoffs see the same bytes.
+identical set in `.agents/skills/` (Codex): real copies, or symlinks from
+`.claude/skills/<name>` into `.agents/skills/` (skills CLI default; fine unless the repo
+must work on Windows).
 Invoke a matching skill through the Skill tool (other harnesses: open its `SKILL.md` and follow it).
 
 Mandatory use:
