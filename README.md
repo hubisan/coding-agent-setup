@@ -42,17 +42,19 @@ Skill `adopt-agent-setup` (`.claude/skills/adopt-agent-setup/SKILL.md`): Bestand
 aufnehmen, `CLAUDE.md` nach `AGENTS.md` verschieben, syncen, Platzhalter und CI
 füllen, `/setup-matt-pocock-skills`, Labels, PR auf `chore/agent-setup`.
 
-**Neues Repo:** Auf GitHub **Use this template**, dann in der ersten Session
-`/adopt-agent-setup`.
+Neue (auch leere) und bestehende Repos nutzen denselben Weg, per Prompt in einer
+Session im Ziel-Repo:
 
-**Bestehendes Repo** (Skill ist dort noch nicht vorhanden), Prompt:
-
-> Übernimm das Agent-Setup aus https://github.com/hubisan/coding-agent-setup in dieses Repo. Klone das
-> Template in ein temporäres Verzeichnis und folge dort
+> Übernimm das Agent-Setup aus https://github.com/hubisan/coding-agent-setup in dieses
+> Repo. Klone das Template in ein temporäres Verzeichnis und folge dort
 > `.claude/skills/adopt-agent-setup/SKILL.md`.
 
-Derselbe Prompt (oder `/adopt-agent-setup`, sobald der Skill im Repo ist) aktualisiert
-ein Repo später auf den neuen Stand.
+Später aktualisiert `/adopt-agent-setup` (der Skill ist dann im Repo) auf den neuen
+Stand des Templates.
+
+Ins Ziel kommen nur die Dateien aus `sync-manifest.txt`. README, `LICENSE`,
+`docs/upstream/`, Sync-Skript, Manifest und die Konfiguration dieses Repos
+(`issue-tracker.md`, `domain.md`) bleiben hier.
 
 Nur kopieren, ohne KI (Linux/WSL; löscht nichts, meldet `extra`):
 

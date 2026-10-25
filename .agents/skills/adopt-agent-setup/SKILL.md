@@ -7,7 +7,7 @@ disable-model-invocation: true
 # Adopt agent setup
 
 Bring this repo onto the shared agent setup from `hubisan/coding-agent-setup`
-(the **template**), new repo or grown one. The template owns the generic files; this
+(the **template**): an empty repo, a grown one, or an update of an adopted one. The template owns the generic files; this
 repo owns its project rules. Your job is the **merge**: every project rule survives,
 every generic file comes from the template.
 
@@ -54,7 +54,8 @@ Done when the dry run reports zero conflicts and no project rule lives only in a
 
 ## 4. Sync and merge
 
-Run `<template>/scripts/sync-coding-agent-setup.sh .`. Then merge the template into
+Run `<template>/scripts/sync-coding-agent-setup.sh .`. Seeds it just added carry
+`PROJECT` placeholders; fill them from the repo and the user. Merge the template into
 each kept seed file:
 
 - `AGENTS.md`: take the template's section structure (Start here, Read when,
@@ -69,7 +70,8 @@ Done when `grep -rn PROJECT AGENTS.md Makefile .github` finds nothing and
 
 ## 5. Configure skills and labels
 
-Run `/setup-matt-pocock-skills`. Its `## Agent skills` block goes into `AGENTS.md`,
+Run `/setup-matt-pocock-skills`; it creates or confirms `docs/agents/issue-tracker.md`
+and `domain.md` for this repo. Its `## Agent skills` block goes into `AGENTS.md`,
 also when the skill proposes `CLAUDE.md`. If it rewrites
 `docs/agents/triage-labels.md`, restore the template version. Then run `scripts/labels-setup.sh` (needs `gh`). Show the user
 which existing labels are not in the table; add `--prune` to delete them only after
