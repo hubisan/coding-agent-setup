@@ -7,4 +7,3 @@
 ci:
 	@echo "PROJECT: replace the ci target with the real check (format, lint, tests)" >&2
 	@exit 1
-
