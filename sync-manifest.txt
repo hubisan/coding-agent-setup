@@ -6,9 +6,11 @@
 # Never listed, so never copied: this repo's README.md, LICENSE, docs/upstream/,
 # the sync script and this manifest; project config generated per repo by
 # /setup-matt-pocock-skills (docs/agents/issue-tracker.md, domain.md).
+# .claude/skills is not listed: the sync rebuilds it from .agents/skills with
+# scripts/skills-mirror.sh (links or copies, per .agent-setup.conf).
 
-sync .claude/skills
 sync .agents/skills
+sync scripts/skills-mirror.sh
 sync skills-lock.json
 sync THIRD-PARTY-LICENSES.md
 sync .claude/agents/implementer.md
@@ -19,6 +21,7 @@ sync scripts/labels-setup.sh
 import CLAUDE.md
 
 seed AGENTS.md
+seed .agent-setup.conf
 seed Makefile
 seed .github/workflows/ci.yml
 seed .gitattributes

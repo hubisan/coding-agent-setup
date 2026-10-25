@@ -25,9 +25,10 @@ sync() { "$tpl/scripts/sync-coding-agent-setup.sh" "$@"; }
 new_target() { local d="$tmp/$1"; mkdir -p "$d"; git_q -C "$d" init; echo "$d"; }
 
 # Static checks on the template itself.
-check "skill copies identical" diff -r "$repo/.claude/skills" "$repo/.agents/skills"
-check_not "no symlinks in repo" test -n "$(cd "$repo" && find . -path ./.git -prune -o -type l -print)"
-check "scripts executable" test -x "$repo/scripts/sync-coding-agent-setup.sh" -a -x "$repo/scripts/labels-setup.sh"
+check "claude skills mirror agents skills" diff -r "$repo/.claude/skills" "$repo/.agents/skills"
+check "claude skills are links" test -z "$(find "$repo/.claude/skills" -mindepth 1 -maxdepth 1 ! -type l)"
+check_not "no symlinks outside .claude/skills" test -n "$(cd "$repo" && find . -path ./.git -prune -o -path ./.claude/skills -prune -o -type l -print)"
+check "scripts executable" test -x "$repo/scripts/sync-coding-agent-setup.sh" -a -x "$repo/scripts/labels-setup.sh" -a -x "$repo/scripts/skills-mirror.sh"
 check "dry run on fresh target" sync --dry-run "$(new_target dry)"
 check_not "dry run writes nothing" test -e "$tmp/dry/AGENTS.md"
 
@@ -35,7 +36,7 @@ check_not "dry run writes nothing" test -e "$tmp/dry/AGENTS.md"
 t=$(new_target fresh)
 check "fresh install" sync "$t"
 check "version recorded" test "$(cat "$t/.agent-setup-version")" = "$(git -C "$tpl" rev-parse HEAD)"
-check "skills copied" diff -r "$tpl/.claude/skills" "$t/.claude/skills"
+check "skills linked by default" test -L "$t/.claude/skills/tdd" -a -f "$t/.claude/skills/tdd/SKILL.md"
 git -C "$t" add -A && git_q -C "$t" commit -m adopt
 check "rerun succeeds" sync "$t"
 check "rerun changes nothing" test -z "$(git -C "$t" status --porcelain)"
@@ -70,12 +71,19 @@ check_not "symlinked dir fails" sync "$t3"
 check "outside untouched" test -z "$(ls -A "$tmp/outside")"
 check_not "no version after conflict" test -e "$t3/.agent-setup-version"
 
-# In-repo symlinks (skills CLI layout) are allowed and written through.
-t4=$(new_target inrepo)
-mkdir -p "$t4/.agents/skills/tdd" "$t4/.claude/skills"
+# Copy mode for Windows repos: real copies, also replacing existing links.
+t4=$(new_target copymode)
+mkdir -p "$t4/.claude/skills" "$t4/.agents/skills/tdd"
 ln -s ../../.agents/skills/tdd "$t4/.claude/skills/tdd"
-check "in-repo symlink allowed" sync "$t4"
-check "symlink kept" test -L "$t4/.claude/skills/tdd"
+echo "skills=copy" > "$t4/.agent-setup.conf"
+check "copy mode syncs" sync "$t4"
+check "copy mode makes real dirs" test ! -L "$t4/.claude/skills/tdd" -a -f "$t4/.claude/skills/tdd/SKILL.md"
+check "copy mode mirrors" diff -r "$t4/.agents/skills" "$t4/.claude/skills"
+
+# Claude-only skill is kept and reported.
+mkdir -p "$t/.claude/skills/own"
+check "own claude skill reported" bash -c "'$t/scripts/skills-mirror.sh' '$t' | grep -q 'extra .claude/skills/own'"
+check "own claude skill kept" test -d "$t/.claude/skills/own"
 
 # Dirty template is refused.
 echo dirty >> "$tpl/README.md"
