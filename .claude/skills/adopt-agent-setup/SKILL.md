@@ -69,14 +69,17 @@ each kept seed file:
   into it; fill or delete each `PROJECT` placeholder. Keep it pointer-only; load the
   `writing-for-agents` skill for this edit.
 - `Makefile`: a `ci` target that runs the repo's full check (format, lint, tests).
-- `.github/workflows/ci.yml`: runs `make ci` with the repo's toolchain setup.
+- `.github/workflows/ci.yml`: runs `make ci` with the repo's toolchain setup; drop the
+  `if:` line that skips the job in the template repo.
 
 Done when `grep -rn PROJECT AGENTS.md Makefile .github` finds nothing and
 `make ci` runs the real check.
 
 ## 5. Configure skills and labels
 
-Run `/setup-matt-pocock-skills`; it creates or confirms `docs/agents/issue-tracker.md`
+Follow `.claude/skills/setup-matt-pocock-skills/SKILL.md` (user-invoked, so read and
+follow the file; with the user present, `/setup-matt-pocock-skills` works too); it
+creates or confirms `docs/agents/issue-tracker.md`
 and `domain.md` for this repo. Its `## Agent skills` block goes into `AGENTS.md`,
 also when the skill proposes `CLAUDE.md`. If it rewrites
 `docs/agents/triage-labels.md`, restore the template version. Then run `scripts/labels-setup.sh` (needs `gh`). Show the user
