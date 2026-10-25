@@ -72,6 +72,10 @@ each kept seed file:
 - `.github/workflows/ci.yml`: runs `make ci` with the repo's toolchain setup; drop the
   `if:` line that skips the job in the template repo.
 
+On an update, kept seeds never change by themselves: read
+`git -C <template> diff <recorded-sha>..HEAD -- <seed paths>` and carry each template
+change into the project version, or tell the user why not.
+
 Done when `grep -rn PROJECT AGENTS.md Makefile .github` finds nothing and
 `make ci` runs the real check.
 
