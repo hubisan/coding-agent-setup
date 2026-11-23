@@ -28,11 +28,40 @@ planning and review to fixed-role subagents instead of inheriting the session mo
 | Normal code review | `reviewer-light` | Luna max | `reviewer` (Sol medium) |
 | Complex, security-sensitive or data-risk review | `reviewer` | Sol medium | User-approved higher-effort session |
 
-Claude Code keeps its configured subagents; do not assume Codex model IDs apply to
-Claude. Codex exact model IDs are in `.codex/agents/*.toml`. Versionless family names
-in this table are explanatory only. When a model is unsupported by the installed client,
-stop, tell the user and request a supported replacement rather than silently
-falling back to the coordinator model.
+### Claude Code routing
+
+Claude Code uses the same role names in `.claude/agents/*.md`, with its own
+model/effort settings. Start the coordinator on Haiku if it is available and
+sufficient for session coordination; the user controls the main-session model.
+
+| Phase | Claude role | Fixed model / effort |
+| --- | --- | --- |
+| Simple planning | `planner-light` | Sonnet medium |
+| Complex or high-risk planning | `planner` | Opus medium |
+| Small changes | `implementer-light` | Haiku high |
+| Normal implementation | `implementer` | Sonnet medium |
+| Complex or high-risk implementation | `implementer-complex` | Opus medium |
+| Focused tests and failure triage | `tester` | Haiku high |
+| Normal code review | `reviewer-light` | Sonnet medium |
+| Complex or high-risk code review | `reviewer` | Opus medium |
+| Approved escalation only | `implementer-escalated` | Sonnet high |
+
+Use the same delegation, independent review and correction rules as Codex.
+Claude subagent model and effort are defined in each agent's YAML frontmatter.
+The coordinator should not do planning or behavior-changing code review itself.
+Do not supply a conflicting per-invocation model or effort override: Claude Code
+can give such overrides precedence over agent frontmatter. Also check
+`CLAUDE_CODE_SUBAGENT_MODEL_FORCE` and `CLAUDE_CODE_EFFORT_LEVEL`, which can
+override per-agent selection. Treat model family aliases as intentionally
+versionless; check current availability and report substitutions.
+
+For Claude Code v2.1.242 or later, inspect `/tasks` while a subagent runs:
+the task row reports its actual model and configured effort when available.
+Use this UI evidence for `runtime-verified`; if unavailable, mark the model
+`configured (runtime unverified)`. Request the phase-by-phase model-routing
+report as for Codex. Never accept the agent's own claim as proof.
+
+### Shared delegation rules
 
 - The coordinator reads the ticket, chooses a planning role by complexity/risk, and
   gives it only the relevant scope and repository context. Planning must finish before
@@ -56,7 +85,7 @@ falling back to the coordinator model.
 
 ### Model verification and reporting
 
-Before the first Codex delegation in each session, check configured model IDs against
+Before the first delegation in each session, check configured model IDs or aliases against
 models the current client exposes and check whether a newer supported release exists
 when reliable release information is accessible. Warn once on unavailable, unsupported
 or superseded IDs; name the agent, configured ID and proposed replacement. Do not
@@ -78,9 +107,9 @@ are insufficient. If a spawn fails or the effective model is unknown, report tha
 clearly; do not claim savings or a different model was used.
 
 Before the final answer, show a compact summary of planned versus verified routing
-for phases actually run, and flag mismatches. In the Codex CLI, inspect the active
-subagent threads with `/subagents` when supported; model/effort visibility depends
-on the client. Do not invent a verification command or infer runtime identity from
+for phases actually run, and flag mismatches. In the Codex CLI, inspect active subagent threads with `/subagents` when supported;
+model/effort visibility depends on the client. In Claude Code, prefer the `/tasks`
+model/effort display while a subagent is active (v2.1.242+). Do not invent a verification command or infer runtime identity from
 token consumption.
 
 ## Skills
