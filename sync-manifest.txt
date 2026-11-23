@@ -13,6 +13,7 @@ sync .agents/skills
 sync scripts/skills-mirror.sh
 sync skills-lock.json
 sync THIRD-PARTY-LICENSES.md
+sync .codex/agents
 sync .claude/agents/implementer.md
 sync .claude/agents/implementer-escalated.md
 sync docs/agents/WORKFLOW.md
