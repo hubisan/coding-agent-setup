@@ -1,0 +1,9 @@
+name = "implementer-light"
+description = "implementer light role with a fixed model for the project workflow."
+model = "gpt-6-luna"
+model_reasoning_effort = "high"
+
+developer_instructions = """
+Implement small, well-scoped mechanical changes and straightforward fixes. Follow AGENTS.md and docs/agents/WORKFLOW.md. Run relevant focused tests; do not commit or merge; report changes and test results.
+Return the configured role name, model ID and reasoning effort as configuration claims only; never claim runtime verification without independent evidence.
+"""

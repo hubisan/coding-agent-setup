@@ -8,54 +8,88 @@ ticket, ADR, or domain doc is checked into the repository, treat it as authorita
 for its scope.
 
 Normal flow: `/to-spec` -> `/to-tickets` (usually done by the user, often in a separate
-chat) -> planner plans one ticket -> implementer subagent -> focused tests -> planner
-review -> at most one correction -> final CI -> commit.
+chat) -> planning subagent -> implementation subagent -> focused tests -> independent
+review subagent -> at most one correction -> final CI -> main-session commit.
 
 ## Roles and model routing
 
-| Role | Claude Code | Codex |
-| --- | --- | --- |
-| Planner and reviewer | main session; model and effort chosen in the session | main session; model and effort chosen in the session |
-| Implementer (default) | subagent `implementer`: Sonnet, effort medium | subagent `implementer`: Luna high (small tickets); `implementer-complex`: Sol medium (complex tickets) |
-| Escalated implementer | subagent `implementer-escalated`: Sonnet, effort high | subagent `implementer-escalated`: Sol high (approval required) |
+The main session coordinates work, Git and PRs. Select its model for cost. Delegate
+planning, implementation and behavior-changing code review to role-specific agents.
 
-The workflow uses versionless model family names. Codex subagent TOML files under
-`.codex/agents/` require exact model IDs; the checked-in IDs are versioned and must
-be updated when the family advances. Claude agents are defined in `.claude/agents/`.
+**Routing trigger:** select the lowest-risk role that fits the ticket. Security,
+data writes, migrations, concurrency and architecture changes use the complex role.
+Route by risk before size; a one-line security change is still high-risk.
 
-For Codex, delegate small, well-scoped changes, tests and straightforward fixes to
-`implementer` (Luna high). Delegate cross-file features, complex logic and higher-risk
-implementation to `implementer-complex` (Sol medium). Use `implementer-escalated`
-(Sol high) only with explicit user approval. Planning and review keep the model and
-effort chosen for the main session.
+| Task | Role | Codex | Claude Code |
+| --- | --- | --- | --- |
+| Simple planning | `planner-light` | Luna max | Sonnet medium |
+| Complex planning | `planner` | Sol medium | Opus medium |
+| Small implementation | `implementer-light` | Luna high | Sonnet low |
+| Normal implementation | `implementer` | Luna max | Sonnet medium |
+| Complex implementation | `implementer-complex` | Sol medium | Opus medium |
+| Focused test triage | `tester` | Luna high | Sonnet low |
+| Normal code review | `reviewer-light` | Luna max | Sonnet medium |
+| Complex code review | `reviewer` | Sol medium | Opus medium |
+| Approved escalation | `implementer-escalated` | Sol high | Sonnet high |
 
-Before the first Codex implementation delegation in a session, check the configured
-subagent model IDs against models actually available in the current Codex client and,
-when current release information is accessible, the latest supported release in each
-selected model family. Warn the user if an ID is unavailable, unsupported by this
-client, or superseded; state which agent and model are affected and suggest the
-current supported replacement. Do not silently substitute a model or update the
-config; obtain user approval first. If current availability or release information
-cannot be verified, say so rather than claiming the models are current. Do this
-check once per session (or after a model-related failure), not for each ticket.
-The TOML settings are authoritative for the subagent model and effort.
+**Source of truth:** Codex model IDs and effort live in `.codex/agents/*.toml`;
+Claude model aliases and effort live in `.claude/agents/*.md`. This table is a
+routing overview, not a second configuration. The session model is user-selected.
+For Claude, prefer Sonnet low for coordination; for Codex, Luna high. Haiku is
+excluded from default Claude routing.
 
-- The user sets the planner's model and effort (`/model`, `/effort`); Claude
-  subagent settings live in `.claude/agents/*.md`, Codex settings in `.codex/agents/*.toml`.
-- The planner reads the ticket, writes a short plan (owned files, seam, focused test
-  command, relevant project-doc sections), and delegates to `implementer`.
-- Parallelise for speed: start as many implementers at once as there are independent
-  slices (disjoint files, no shared migration or generated file), each in its own worktree
-  (`isolation: "worktree"`) so checkouts and uncommitted files never mix. Slices that
-  touch the same files run one after another.
-- The implementer fixes ordinary test failures itself and returns a compact report.
-- The planner reviews. For high-risk tickets (data writes, transactions, concurrency,
-  security) the planner may raise its own effort for the review.
-- `implementer-escalated` and any `xhigh`/`max` effort require explicit user approval.
-- Git/GitHub housekeeping (branch, commit, push, PR create/merge, issues, labels)
-  stays in the planner session. It costs few tokens; delegating it to a subagent
-  costs more (briefing + context) than it saves.
-- Other harnesses keep the same three roles with their own models.
+### Delegate
+
+1. **Plan:** Read the active ticket and the most downstream approved artifact.
+   Skip re-planning when an adequate plan already exists. Delegate a missing plan
+   to `planner-light` or `planner`. Done when the brief names owned files,
+   dependencies, acceptance criteria and a focused test command.
+2. **Implement:** Delegate the plan to the matching implementer with only the
+   relevant paths and sections. Parallelize disjoint slices in separate worktrees;
+   serialize changes to shared files or migrations. Done when the agent reports
+   changed files and focused tests, or names a blocking assumption.
+3. **Test:** The implementer runs focused tests and fixes ordinary failures.
+   Delegate `tester` only for useful independent execution or triage. Done when
+   test results and any unrun checks are recorded. Run full `make ci` once at
+   package completion.
+4. **Review:** Give behavior-changing diffs to an independent reviewer, never
+   their implementer. Use `code-review` and check the ticket's criteria and
+   guardrails. For docs-only, config-only or mechanical changes, coordinator
+   diff inspection is enough. Done when the reviewer returns actionable findings
+   with file/line references or explicitly reports none.
+5. **Correct:** Send substantial findings to an implementer for one focused
+   correction, following the correction budget below. Escalate to
+   `implementer-escalated` only with user approval. Keep Git housekeeping in the
+   main session.
+
+### Verify model routing
+
+**Configuration is not runtime evidence.** Before first delegation in a session,
+check whether configured model IDs/aliases are supported. When reliable current
+release information is available, warn once about superseded versions. Name the
+affected agent and suggested replacement; request approval before changing config.
+
+After each phase, record `phase / role / configured model / effort / evidence`.
+Use one of these evidence states:
+
+- `configured`: read the agent config; no spawn evidence
+- `spawn-confirmed`: the selected agent started; runtime model not confirmed
+- `runtime-verified`: independent client/task metadata shows effective model
+  **and** effort, with its evidence location
+
+For example: `review / reviewer / gpt-6.2-sol / medium / spawn-confirmed`.
+
+Codex: inspect `/subagents` if supported. Claude Code: inspect `/tasks` while
+the task is active if supported. Check overrides that can supersede configured
+Claude agents, including per-invocation options and relevant environment variables.
+Self-reports, config inspection and token usage are not runtime proof. Report
+unknown effective models, mismatches and unavailable verification explicitly;
+never infer that a cheaper model actually ran.
+
+**Completion:** the final report includes the roles actually used, configured
+model/effort, verification status, substantive review findings, focused-test results
+and CI status. The coordinator does not claim verified model routing without
+independent evidence.
 
 ## Skills
 
@@ -69,7 +103,7 @@ Mandatory use:
 
 | Situation | Skill |
 | --- | --- |
-| Review of a ticket that changes code | `code-review` (planner, before commit) |
+| Review of a ticket that changes code | `code-review` (review subagent, before commit) |
 | Creating or editing the glossary or an ADR, or a term/decision is being settled | `domain-modeling` |
 | Implementing a ticket with behaviour change | `tdd` (implementer) |
 | Hard bug, flaky or unexplained failure | `diagnosing-bugs` |
@@ -81,7 +115,7 @@ Skills marked `disable-model-invocation` (e.g. `to-spec`, `to-tickets`, `triage`
 Skip on purpose (token cost without benefit):
 
 - `code-review` for docs-only, config-only or purely mechanical changes (renames,
-  generated files, formatting); the planner's own diff review is enough there.
+  generated files, formatting); the coordinator's diff inspection is enough there.
 - Any skill for Git/GitHub housekeeping (commit, PR, merge, labels).
 
 Update skills on a `chore/skills-update` branch, then run `scripts/skills-mirror.sh`.
@@ -127,7 +161,7 @@ repository guardrail is violated, behaviour is incorrect, or a test is missing
 for changed behaviour. Naming, style, and code-smell judgement calls are not
 substantial: report them, fix them only inside an already-planned correction.
 
-1. First review finds a substantial issue: the planner adjusts the plan and delegates
+1. First review finds a substantial issue: the coordinator adjusts the plan and delegates
    one focused correction.
 2. Second review still finds a substantial issue: stop and ask the user. No further
    correction and no escalation without approval.
@@ -176,7 +210,7 @@ Tick the ticket's acceptance criteria in the issue and close it through the PR
 
 Before declaring a package complete:
 
-1. review the diff against the active ticket/spec;
+1. review the diff against the active ticket/spec using the selected independent reviewer for code changes;
 2. run the final CI possible in the current environment;
 3. update every doc the change makes stale (README, `docs/`, `AGENTS.md` pointers,
    `CHANGELOG.md` if the repo keeps one) in the same PR; if none, say so;
