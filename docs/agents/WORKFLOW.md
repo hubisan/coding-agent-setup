@@ -31,22 +31,24 @@ planning and review to fixed-role subagents instead of inheriting the session mo
 ### Claude Code routing
 
 Claude Code uses the same role names in `.claude/agents/*.md`, with its own
-model/effort settings. Start the coordinator on Haiku if it is available and
-sufficient for session coordination; the user controls the main-session model.
+model/effort settings. Prefer Sonnet low for coordination; the user controls the main-session model.
 
 | Phase | Claude role | Fixed model / effort |
 | --- | --- | --- |
 | Simple planning | `planner-light` | Sonnet medium |
 | Complex or high-risk planning | `planner` | Opus medium |
-| Small changes | `implementer-light` | Haiku high |
+| Small changes | `implementer-light` | Sonnet low |
 | Normal implementation | `implementer` | Sonnet medium |
 | Complex or high-risk implementation | `implementer-complex` | Opus medium |
-| Focused tests and failure triage | `tester` | Haiku high |
+| Focused tests and failure triage | `tester` | Sonnet low |
 | Normal code review | `reviewer-light` | Sonnet medium |
 | Complex or high-risk code review | `reviewer` | Opus medium |
 | Approved escalation only | `implementer-escalated` | Sonnet high |
 
 Use the same delegation, independent review and correction rules as Codex.
+Haiku is intentionally not used in the default Claude routing: prefer Sonnet low
+for simple tasks and tests, Sonnet medium for normal work and Opus medium for
+complex, high-risk planning, implementation and review.
 Claude subagent model and effort are defined in each agent's YAML frontmatter.
 The coordinator should not do planning or behavior-changing code review itself.
 Do not supply a conflicting per-invocation model or effort override: Claude Code
