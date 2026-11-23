@@ -16,10 +16,14 @@ review -> at most one correction -> final CI -> commit.
 | Role | Claude Code | Codex |
 | --- | --- | --- |
 | Planner and reviewer | main session; model and effort chosen in the session | main session; model and effort chosen in the session |
-| Implementer (default) | subagent `implementer`: Sonnet, effort medium | subagent: Sol, effort medium |
-| Escalated implementer | subagent `implementer-escalated`: Sonnet, effort high | subagent: Sol, effort high |
+| Implementer (default) | subagent `implementer`: Sonnet, effort medium | Luna, effort high (small, focused tickets); Sol, effort medium (complex tickets) |
+| Escalated implementer | subagent `implementer-escalated`: Sonnet, effort high | Sol, effort high (approval required) |
 
 Model names carry no version: the current model of that family is meant.
+For Codex, choose Luna high for small, well-scoped changes, tests and straightforward fixes.
+Choose Sol medium for cross-file features, complex logic and higher-risk implementation.
+Sol high is an escalation and requires explicit user approval. Planning and review
+continue to use the model and effort selected for the main session.
 
 - The user sets the planner's model and effort (`/model`, `/effort`); subagent model
   and effort are fixed in `.claude/agents/*.md`.
