@@ -13,106 +13,83 @@ review subagent -> at most one correction -> final CI -> main-session commit.
 
 ## Roles and model routing
 
-The main session is an inexpensive **coordinator**, not the default planner or code
-reviewer. In Codex it can use Luna high (user selects its session model). Delegate
-planning and review to fixed-role subagents instead of inheriting the session model.
+The main session coordinates work, Git and PRs. Select its model for cost. Delegate
+planning, implementation and behavior-changing code review to role-specific agents.
 
-| Phase | Normal Codex role | Fixed model / effort | Escalation |
+**Routing trigger:** select the lowest-risk role that fits the ticket. Security,
+data writes, migrations, concurrency and architecture changes use the complex role.
+Route by risk before size; a one-line security change is still high-risk.
+
+| Task | Role | Codex | Claude Code |
 | --- | --- | --- | --- |
-| Simple planning | `planner-light` | Luna max | `planner` (Sol medium) |
-| Complex or risky planning | `planner` | Sol medium | User-approved higher-effort session |
-| Small, mechanical implementation | `implementer-light` | Luna high | `implementer` (Luna max) |
-| Normal implementation | `implementer` | Luna max | `implementer-complex` (Sol medium) |
-| Complex or high-risk implementation | `implementer-complex` | Sol medium | `implementer-escalated` (Sol high; approval) |
-| Targeted tests and failure triage | `tester` | Luna high | `implementer` (Luna max) |
-| Normal code review | `reviewer-light` | Luna max | `reviewer` (Sol medium) |
-| Complex, security-sensitive or data-risk review | `reviewer` | Sol medium | User-approved higher-effort session |
+| Simple planning | `planner-light` | Luna max | Sonnet medium |
+| Complex planning | `planner` | Sol medium | Opus medium |
+| Small implementation | `implementer-light` | Luna high | Sonnet low |
+| Normal implementation | `implementer` | Luna max | Sonnet medium |
+| Complex implementation | `implementer-complex` | Sol medium | Opus medium |
+| Focused test triage | `tester` | Luna high | Sonnet low |
+| Normal code review | `reviewer-light` | Luna max | Sonnet medium |
+| Complex code review | `reviewer` | Sol medium | Opus medium |
+| Approved escalation | `implementer-escalated` | Sol high | Sonnet high |
 
-### Claude Code routing
+**Source of truth:** Codex model IDs and effort live in `.codex/agents/*.toml`;
+Claude model aliases and effort live in `.claude/agents/*.md`. This table is a
+routing overview, not a second configuration. The session model is user-selected.
+For Claude, prefer Sonnet low for coordination; for Codex, Luna high. Haiku is
+excluded from default Claude routing.
 
-Claude Code uses the same role names in `.claude/agents/*.md`, with its own
-model/effort settings. Prefer Sonnet low for coordination; the user controls the main-session model.
+### Delegate
 
-| Phase | Claude role | Fixed model / effort |
-| --- | --- | --- |
-| Simple planning | `planner-light` | Sonnet medium |
-| Complex or high-risk planning | `planner` | Opus medium |
-| Small changes | `implementer-light` | Sonnet low |
-| Normal implementation | `implementer` | Sonnet medium |
-| Complex or high-risk implementation | `implementer-complex` | Opus medium |
-| Focused tests and failure triage | `tester` | Sonnet low |
-| Normal code review | `reviewer-light` | Sonnet medium |
-| Complex or high-risk code review | `reviewer` | Opus medium |
-| Approved escalation only | `implementer-escalated` | Sonnet high |
+1. **Plan:** Read the active ticket and the most downstream approved artifact.
+   Skip re-planning when an adequate plan already exists. Delegate a missing plan
+   to `planner-light` or `planner`. Done when the brief names owned files,
+   dependencies, acceptance criteria and a focused test command.
+2. **Implement:** Delegate the plan to the matching implementer with only the
+   relevant paths and sections. Parallelize disjoint slices in separate worktrees;
+   serialize changes to shared files or migrations. Done when the agent reports
+   changed files and focused tests, or names a blocking assumption.
+3. **Test:** The implementer runs focused tests and fixes ordinary failures.
+   Delegate `tester` only for useful independent execution or triage. Done when
+   test results and any unrun checks are recorded. Run full `make ci` once at
+   package completion.
+4. **Review:** Give behavior-changing diffs to an independent reviewer, never
+   their implementer. Use `code-review` and check the ticket's criteria and
+   guardrails. For docs-only, config-only or mechanical changes, coordinator
+   diff inspection is enough. Done when the reviewer returns actionable findings
+   with file/line references or explicitly reports none.
+5. **Correct:** Send substantial findings to an implementer for one focused
+   correction, following the correction budget below. Escalate to
+   `implementer-escalated` only with user approval. Keep Git housekeeping in the
+   main session.
 
-Use the same delegation, independent review and correction rules as Codex.
-Haiku is intentionally not used in the default Claude routing: prefer Sonnet low
-for simple tasks and tests, Sonnet medium for normal work and Opus medium for
-complex, high-risk planning, implementation and review.
-Claude subagent model and effort are defined in each agent's YAML frontmatter.
-The coordinator should not do planning or behavior-changing code review itself.
-Do not supply a conflicting per-invocation model or effort override: Claude Code
-can give such overrides precedence over agent frontmatter. Also check
-`CLAUDE_CODE_SUBAGENT_MODEL_FORCE` and `CLAUDE_CODE_EFFORT_LEVEL`, which can
-override per-agent selection. Treat model family aliases as intentionally
-versionless; check current availability and report substitutions.
+### Verify model routing
 
-For Claude Code v2.1.242 or later, inspect `/tasks` while a subagent runs:
-the task row reports its actual model and configured effort when available.
-Use this UI evidence for `runtime-verified`; if unavailable, mark the model
-`configured (runtime unverified)`. Request the phase-by-phase model-routing
-report as for Codex. Never accept the agent's own claim as proof.
+**Configuration is not runtime evidence.** Before first delegation in a session,
+check whether configured model IDs/aliases are supported. When reliable current
+release information is available, warn once about superseded versions. Name the
+affected agent and suggested replacement; request approval before changing config.
 
-### Shared delegation rules
+After each phase, record `phase / role / configured model / effort / evidence`.
+Use one of these evidence states:
 
-- The coordinator reads the ticket, chooses a planning role by complexity/risk, and
-  gives it only the relevant scope and repository context. Planning must finish before
-  implementation; treat an existing approved plan/spec as authoritative and do not
-  re-plan merely because a phase exists.
-- Delegate simple changes to `implementer-light`, ordinary features to
-  `implementer`, and difficult or higher-risk code to `implementer-complex`.
-  Escalating to `implementer-escalated` or any unlisted high-cost role needs user approval.
-- The implementer runs focused tests itself. Use a separate `tester` only when
-  independent test execution or failure triage actually saves work. Do not spawn a
-  tester just to duplicate passing tests. Full CI runs once at package completion.
-- An independent `reviewer-light` or `reviewer` reviews behavior-changing code;
-  the implementer must not review its own work. For docs-only, config-only and
-  mechanical diffs, the coordinator may inspect the diff without a review subagent.
-- Route focused fixes back to `implementer-light` or `implementer`. Keep the
-  correction budget below. Never repeat review cycles without a concrete finding.
-- Parallelise only independent, disjoint implementation slices in separate worktrees;
-  shared files or migrations run sequentially.
-- Git/GitHub housekeeping (branch, commit, push, PR, merge and labels) stays in the
-  main session. Do not spawn agents for it.
+- `configured`: read the agent config; no spawn evidence
+- `spawn-confirmed`: the selected agent started; runtime model not confirmed
+- `runtime-verified`: independent client/task metadata shows effective model
+  **and** effort, with its evidence location
 
-### Model verification and reporting
+For example: `review / reviewer / gpt-6.2-sol / medium / spawn-confirmed`.
 
-Before the first delegation in each session, check configured model IDs or aliases against
-models the current client exposes and check whether a newer supported release exists
-when reliable release information is accessible. Warn once on unavailable, unsupported
-or superseded IDs; name the agent, configured ID and proposed replacement. Do not
-silently change configuration. If not verifiable, say so.
+Codex: inspect `/subagents` if supported. Claude Code: inspect `/tasks` while
+the task is active if supported. Check overrides that can supersede configured
+Claude agents, including per-invocation options and relevant environment variables.
+Self-reports, config inspection and token usage are not runtime proof. Report
+unknown effective models, mismatches and unavailable verification explicitly;
+never infer that a cheaper model actually ran.
 
-**Configuration is not proof of runtime use.** Some Codex client versions have
-incorrectly inherited the parent model/effort when spawning custom subagents. For
-each phase, provide a concise model-routing line:
-
-`plan: planner / gpt-6.2-sol / medium / configured (runtime unverified)`
-
-Use the actual agent, model and effort from its TOML; name the phase and state
-`configured`, `spawn-confirmed`, or `runtime-verified`. A successful spawn
-confirms the agent identity, not necessarily the runtime model. Mark
-`runtime-verified` **only** with independent client/session metadata or logs that
-show the effective model **and** effort for that subagent. Quote the evidence
-location or command when available. Agent self-reports and TOML inspection alone
-are insufficient. If a spawn fails or the effective model is unknown, report that
-clearly; do not claim savings or a different model was used.
-
-Before the final answer, show a compact summary of planned versus verified routing
-for phases actually run, and flag mismatches. In the Codex CLI, inspect active subagent threads with `/subagents` when supported;
-model/effort visibility depends on the client. In Claude Code, prefer the `/tasks`
-model/effort display while a subagent is active (v2.1.242+). Do not invent a verification command or infer runtime identity from
-token consumption.
+**Completion:** the final report includes the roles actually used, configured
+model/effort, verification status, substantive review findings, focused-test results
+and CI status. The coordinator does not claim verified model routing without
+independent evidence.
 
 ## Skills
 
