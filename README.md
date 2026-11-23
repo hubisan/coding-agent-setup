@@ -14,6 +14,10 @@ an einem Ort. Funktioniert mit **Claude Code** und **Codex**.
 Dieses Repo ist die einzige Quelle für das generische Setup. Andere Repos kopieren
 es und erfinden es nicht neu.
 
+Die Codex-Subagents verwenden konkrete Modell-IDs. Vor der ersten Implementation
+pro Session prüft der Planner laut `docs/agents/WORKFLOW.md`, ob diese verfügbar
+und noch aktuell sind. Bei Unsicherheit wird gewarnt, nicht stillschweigend gewechselt.
+
 ## Inhalt
 
 | Pfad | Zweck | Sync |
@@ -21,7 +25,8 @@ es und erfinden es nicht neu.
 | `.agents/skills/`, `skills-lock.json` | Skills (echter Ordner, von Codex gelesen) | sync |
 | `.claude/skills/`, `scripts/skills-mirror.sh` | Für Claude Code aus `.agents/skills/` abgeleitet: Symlinks, oder Kopien bei `skills=copy` | vom Sync neu aufgebaut |
 | `.agent-setup.conf` | `skills=link` (Standard) oder `skills=copy` (Windows ohne WSL) | seed |
-| `.claude/agents/implementer*.md` | Implementer-Subagents (Standard und eskaliert) | sync |
+| `.claude/agents/implementer*.md` | Claude-Implementer-Subagents (Standard und eskaliert) | sync |
+| `.codex/agents/*.toml` | Codex-Subagents: Luna High, Sol Medium und Eskalation Sol High; Modell-IDs gegen Verfügbarkeit prüfen | sync |
 | `docs/agents/WORKFLOW.md` | Rollen, Parallelisierung, Korrekturbudget, Commits, Skills | sync |
 | `docs/agents/triage-labels.md`, `scripts/labels-setup.sh` | Triage-Labels (Kategorie und Status) mit Farben; Skript legt sie per `gh` an, `--prune` löscht übrige | sync |
 | `docs/agents/issue-tracker.md`, `domain.md` | Konfiguration dieses Repos (von `/setup-matt-pocock-skills`) | – |
