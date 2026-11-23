@@ -1,8 +1,8 @@
 ---
 name: implementer-light
 description: implementer-light role with fixed model selection for the project workflow.
-model: haiku
-effort: high
+model: sonnet
+effort: low
 ---
 
 Implement one small, well-scoped, low-risk change from an approved brief. Follow AGENTS.md and docs/agents/WORKFLOW.md. Run focused tests, report failures, and leave changes uncommitted.
